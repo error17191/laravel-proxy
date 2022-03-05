@@ -14,9 +14,12 @@ class RedirectController extends Controller
     public function __invoke(Request $request)
     {
         $requestOptions = [
-            'query' => $request->query(),
             'headers' => $this->transformHeaders($request->header()),
         ];
+
+        if($query = $this->query($request)){
+            $requestOptions['query'] = $query;
+        }
 
         if ($request->getContent()) {
             $requestOptions['body'] = $request->getContent();
@@ -50,9 +53,20 @@ class RedirectController extends Controller
         return $transformedHeaders;
     }
 
+    private function query(Request $request)
+    {
+        $query = $request->query();
+        if (isset($query['redirect_base_url'])) {
+            unset($query['redirect_base_url']);
+        }
+        return $query;
+    }
+
     private function url(Request $request)
     {
-        $baseUrl = $request->header('Redirect-Base-Url') ?: env('REDIRECT_URL');
+        $baseUrl = $request->header('Redirect-Base-Url')
+            ?: $request->query('redirect_base_url')
+                ?: env('REDIRECT_URL');
         return $baseUrl . $request->getRequestUri();
     }
 }
