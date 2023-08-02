@@ -3,5 +3,8 @@
 use Illuminate\Support\Facades\Route;
 
 
-Route::any('{any?}', \App\Http\Controllers\RedirectController::class)
+Route::domain('proxy.codejar.dev')->any('{any?}', \App\Http\Controllers\RedirectController::class)
+    ->where('any', '.*');
+
+Route::domain('estate.codejar.dev')->any('{any?}', \App\Http\Controllers\EstateRedirectController::class)
     ->where('any', '.*');
